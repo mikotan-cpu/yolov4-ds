@@ -37,7 +37,7 @@ flags.DEFINE_float('score', 0.50, 'score threshold')
 flags.DEFINE_boolean('dont_show', False, 'dont show video output')
 flags.DEFINE_boolean('info', False, 'show detailed info of tracked objects')
 flags.DEFINE_boolean('count', False, 'count objects being tracked on screen')
-flags.DEFINE_bollean('mask', True, 'mask video input')
+flags.DEFINE_boolean('mask', True, 'mask video input')
 
 
 def resizeAndMaskVideo (vid):
@@ -45,7 +45,7 @@ def resizeAndMaskVideo (vid):
     cap = cv2.VideoCapture(vid)
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('output.avi', fourcc, 30, (640, 360))
+    out = cv2.VideoWriter('./data/video/output.avi', fourcc, 30, (640, 360))
 
     while True:
         ret, frame = cap.read()
@@ -87,7 +87,8 @@ def main(_argv):
     STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
     input_size = FLAGS.size
     video_path = FLAGS.video
-    maskvideo = 'output.avi'
+    resizeAndMaskVideo(video_path)
+    maskvideo = 'data/video/output.avi'
 
     # load tflite model if flag is set
     if FLAGS.framework == 'tflite':
@@ -104,9 +105,9 @@ def main(_argv):
 
     # begin video capture
     try:
-        vid = cv2.VideoCapture(int(video_path))
+        vid = cv2.VideoCapture(int(maskvideo))
     except:
-        vid = cv2.VideoCapture(video_path)
+        vid = cv2.VideoCapture(maskvideo)
 
     out = None
 
@@ -187,10 +188,10 @@ def main(_argv):
         class_names = utils.read_class_names(cfg.YOLO.CLASSES)
 
         # by default allow all classes in .names file
-        allowed_classes = list(class_names.values())
+        #allowed_classes = list(class_names.values())
         
         # custom allowed classes (uncomment line below to customize tracker for only people)
-        #allowed_classes = ['person']
+        allowed_classes = ['bus']
 
         # loop through objects and use class index to get class name, allow only classes in allowed_classes list
         names = []
@@ -264,7 +265,6 @@ def main(_argv):
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    resizeAndMaskVideo(video_path)
     try:
         app.run(main)
     except SystemExit:
